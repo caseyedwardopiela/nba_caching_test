@@ -1,4 +1,15 @@
 import streamlit as st
+import pandas as pd
+#import base64
+#import matplotlib.pyplot as plt
+
+# https://www.youtube.com/watch?v=nF-PQj0k5-o&ab_channel=PythonTutorialsforDigitalHumanities
+import numpy as np
+
+import sklearn
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
+import xgboost as xgb
 
 st.set_page_config(
   page_title="Cache"
