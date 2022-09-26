@@ -23,11 +23,11 @@ st.markdown("""
 Cache test
 """)
 
-allstar_data = pd.read_csv('raw_data_for_allstars.csv').drop(['Unnamed: 0'], axis = 1)
 
-training_df = allstar_data[allstar_data['Season'] < 2023]
-
-def load_models(training):
+@st.cache(allow_output_mutation=True)
+def load_models():
+    allstar_data = pd.read_csv('raw_data_for_allstars.csv').drop(['Unnamed: 0'], axis = 1)
+    training = allstar_data[allstar_data['Season'] < 2023]
     training_columns = list(training.columns)[3:9]
     output_column = 'Allstar'
     y = list(training[output_column])
@@ -40,7 +40,7 @@ def load_models(training):
     logistic_allstar.fit(x, y)
     return(rf_allstar, xgb_allstar, logistic_allstar)
 
-rf, xg, lr = load_models(training_df)
+rf, xg, lr = load_models()
 
 def all_star_model(rf_model, xg_model, lr_model, p, rb, a, s, b, rec):
 
