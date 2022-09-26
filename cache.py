@@ -42,20 +42,20 @@ def load_models(training):
 
 rf, xg, lr = load_models(training_df)
 
-def all_star_model(rf, xg, lr, p, rb, a, s, b, rec):
+def all_star_model(rf_model, xg_model, lr_model, p, rb, a, s, b, rec):
 
   df_temp = pd.DataFrame({'Points': [p], 'Rebounds': [rb], 'Assists': [a], 'Steals': [s], 'Blocks': [b], 'Record': [rec]})
 
   # Random Forest
-  rf_allstar_results = rf.predict_proba(df_temp)
+  rf_allstar_results = rf_model.predict_proba(df_temp)
   rf_allstar_results = [i[1] for i in rf_allstar_results][0]
 
   # XGBoost
-  xgb_allstar_results = xg.predict_proba(df_temp)
+  xgb_allstar_results = xg_model.predict_proba(df_temp)
   xgb_allstar_results = [i[1] for i in xgb_allstar_results][0]
 
   # Logistic
-  logistic_allstar_results = lr.predict_proba(df_temp)
+  logistic_allstar_results = lr_model.predict_proba(df_temp)
   logistic_allstar_results = [i[1] for i in logistic_allstar_results][0]
 
   allstar_prediction = round((rf_allstar_results + xgb_allstar_results + logistic_allstar_results) / 3, 3)
@@ -72,5 +72,5 @@ with st.form(key ='Form1'):
         record = st.slider('Team Record', min_value = float(0.0), max_value = float(1), step = float(0.05))
         submitted = st.form_submit_button(label = 'Determine All-Star Likelihood')
         
-probability = all_star_model(training_df, points, rebounds, assists, steals, blocks, record) 
+probability = all_star_model(rf, xg, lr, points, rebounds, assists, steals, blocks, record) 
 st.write('The likelihood of your player making the NBA All-Star Game Roster is: ', probability)
