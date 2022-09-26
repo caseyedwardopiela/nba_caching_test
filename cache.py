@@ -27,40 +27,35 @@ allstar_data = pd.read_csv('raw_data_for_allstars.csv').drop(['Unnamed: 0'], axi
 
 training_df = allstar_data[allstar_data['Season'] < 2023]
 
-def all_star_model(training, p, rb, a, s, b, rec):
+def load_models(training):
+    training_columns = list(training.columns)[3:9]
+    output_column = 'Allstar'
+    y = list(training[output_column])
+    x = training.loc[:,training_columns]
+    rf_allstar = RandomForestClassifier()
+    rf_allstar.fit(x, y)
+    xgb_allstar = xgb.XGBClassifier()
+    xgb_allstar.fit(x, y)
+    logistic_allstar = LogisticRegression()
+    logistic_allstar.fit(x, y)
+    return(rf_allstar, xgb_allstar, logistic_allstar)
 
-  # Determine which columns to use
-  training_columns = list(training.columns)[3:9]
-  output_column = 'Allstar'
+rf, xg, lr = load_models(training_df)
 
-  # Run Models
-  y = list(training[output_column])
-  x = training.loc[:,training_columns]
+def all_star_model(rf, xg, lr, p, rb, a, s, b, rec):
 
   df_temp = pd.DataFrame({'Points': [p], 'Rebounds': [rb], 'Assists': [a], 'Steals': [s], 'Blocks': [b], 'Record': [rec]})
 
   # Random Forest
-  rf_allstar = RandomForestClassifier()
-
-  rf_allstar.fit(x, y)
-
-  rf_allstar_results = rf_allstar.predict_proba(df_temp)
+  rf_allstar_results = rf.predict_proba(df_temp)
   rf_allstar_results = [i[1] for i in rf_allstar_results][0]
 
   # XGBoost
-  xgb_allstar = xgb.XGBClassifier()
-
-  xgb_allstar.fit(x, y)
-
-  xgb_allstar_results = xgb_allstar.predict_proba(df_temp)
+  xgb_allstar_results = xg.predict_proba(df_temp)
   xgb_allstar_results = [i[1] for i in xgb_allstar_results][0]
 
   # Logistic
-  logistic_allstar = LogisticRegression()
-
-  logistic_allstar.fit(x, y)
-
-  logistic_allstar_results = logistic_allstar.predict_proba(df_temp)
+  logistic_allstar_results = lr.predict_proba(df_temp)
   logistic_allstar_results = [i[1] for i in logistic_allstar_results][0]
 
   allstar_prediction = round((rf_allstar_results + xgb_allstar_results + logistic_allstar_results) / 3, 3)
